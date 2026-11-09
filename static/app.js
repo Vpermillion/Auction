@@ -17,7 +17,7 @@ if (page) {
   const retry = document.querySelector('#retry-bid');
   const money = value => new Intl.NumberFormat(document.documentElement.lang === 'mn' ? 'mn-MN' : 'en-US').format(value) + ' ₮';
   const localTime = seconds => new Intl.DateTimeFormat('en-GB', {timeZone: 'Asia/Ulaanbaatar', dateStyle:'medium', timeStyle:'short'}).format(new Date(seconds*1000)) + ' UBT';
-  let close = Number(page.dataset.close), serverTime = Number(page.dataset.serverTime), syncedAt = performance.now();
+  let close = Number(page.dataset.close), serverTime = Number(page.dataset.serverTime), syncedAt = performance.now(), auctionState = null;
   // The key contains no private information. Storage is per browser tab and auction.
   const storageKey = 'auction-house-pending-' + auction + '-' + page.dataset.bidder;
   let pending = null, inFlight = false;
@@ -32,6 +32,10 @@ if (page) {
   };
   if (pending && submit) { form.elements.amount.value = pending.amount; setUncertain(); }
   function tick() {
+    if (auctionState && auctionState !== 'open') {
+      document.querySelector('#countdown').textContent = 'Bidding ' + auctionState;
+      return;
+    }
     const remaining = Math.max(0, Math.ceil(close - (serverTime + (performance.now()-syncedAt)/1000)));
     const hours = Math.floor(remaining/3600), minutes = Math.floor(remaining%3600/60), seconds = remaining%60;
     document.querySelector('#countdown').textContent = remaining ? `${hours}h ${minutes}m ${seconds}s` : 'Awaiting server close';
@@ -41,8 +45,12 @@ if (page) {
       const response = await fetch('/api/auctions/' + auction, {cache:'no-store'});
       if (!response.ok) throw new Error('Unavailable');
       const state = await response.json();
+      auctionState = state.state;
       close = state.closes_at; serverTime = state.server_time; syncedAt = performance.now();
       document.querySelector('#live-price').textContent = money(state.price);
+      document.querySelector('.bid-price small').textContent = document.documentElement.lang === 'mn'
+        ? (state.bids.length ? 'Одоогийн үнэ' : 'Эхлэх үнэ')
+        : (state.bids.length ? 'Current bid' : 'Starting price');
       document.querySelector('#live-state').textContent = state.state;
       document.querySelector('#closing-time').textContent = localTime(state.closes_at);
       const history = document.querySelector('#bid-history');
