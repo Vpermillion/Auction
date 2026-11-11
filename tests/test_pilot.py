@@ -226,6 +226,26 @@ class PilotCase(unittest.TestCase):
             for path in paths:
                 self.assertEqual(self.client.get(path).status_code,200,path)
 
+    def test_open_catalogue_omits_expired_lots(self):
+        self.db.execute('UPDATE auctions SET closes_at=unixepoch()-1 WHERE id=1')
+        home = self.client.get('/').get_data(as_text=True)
+        self.assertNotIn('Hammered gold-tone pendant', home)
+        self.assertIn('Steel dress watch', home)
+        open_lots = self.client.get('/explore?status=open').get_data(as_text=True)
+        self.assertNotIn('Hammered gold-tone pendant', open_lots)
+        closed_lots = self.client.get('/explore?status=closed').get_data(as_text=True)
+        self.assertIn('Hammered gold-tone pendant', closed_lots)
+        self.assertIn('Winning bid', closed_lots)
+
+    def test_lot_sign_in_returns_buyer_to_lot_and_seller_to_workspace(self):
+        self.assertIn('/login?lot=1', self.client.get('/auctions/1').get_data(as_text=True))
+        for address, destination in [
+            ('buyer@example.test', '/auctions/1'),
+            ('seller@example.test', '/seller'),
+        ]:
+            response = self.post('/login?lot=1', {'email': address, 'password': 'Pilot-demo-2026!'})
+            self.assertEqual(response.location, destination)
+
     def test_csrf_and_role_checks(self):
         self.assertEqual(self.client.post('/inquiry',data={'email':'a@b.test','message':'hello world'}).status_code,400)
         self.login()
@@ -240,8 +260,8 @@ class PilotCase(unittest.TestCase):
         for action,data in [('edit',self.values()),('cancel',{'reason':'foreign shop cancellation'}),('status',{'kind':'payment','value':'paid','reason':'foreign payment attempt'}),('relist',{'reason':'foreign relist attempt'})]:
             self.assertEqual(self.post('/seller/1/'+action,data).status_code,403,action)
         output=self.client.get('/seller/export.csv').get_data(as_text=True)
-        self.assertIn('silver lining',output)
-        self.assertNotIn('everyday pendant',output)
+        self.assertIn('Sculpted silver-tone band',output)
+        self.assertNotIn('Hammered gold-tone pendant',output)
         self.assertNotIn('buyer@example.test',self.client.get('/seller').get_data(as_text=True))
 
     def test_full_seller_create_publish_buyer_bid_close_and_fulfill(self):

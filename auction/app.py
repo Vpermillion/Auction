@@ -25,8 +25,7 @@ MN = {
     'Auction rules': 'Дуудлага худалдааны дүрэм', 'Closes': 'Хаагдах хугацаа', 'Minimum increment': 'Үнийн алхам',
     'Seller-provided evidence': 'Борлуулагчийн өгсөн баримт', 'Condition': 'Барааны төлөв',
     'Report a concern': 'Асуудал мэдээлэх', 'No bids yet': 'Үнийн санал ирээгүй',
-    'Your next great find.': 'Таны дараагийн онцгой олдвор.', 'Objects with a story.': 'Түүх өгүүлэх эд зүйлс.',
-    'A considered way to bid.': 'Тунгааж сонгон, үнэ санал болго.', 'View auction': 'Дэлгэрэнгүй',
+    'View auction': 'Дэлгэрэнгүй',
     'Email': 'Цахим шуудан', 'Password': 'Нууц үг', 'Open': 'Нээлттэй', 'Closed': 'Хаагдсан',
     'Draft': 'Ноорог', 'Cancelled': 'Цуцалсан', 'Suspended': 'Түдгэлзүүлсэн',
     'Pickup & contact': 'Хүлээн авах ба холбоо барих', 'Seller policies': 'Борлуулагчийн нөхцөл',
@@ -35,6 +34,20 @@ MN = {
     'Save draft': 'Ноорог хадгалах', 'Publish auction': 'Дуудлага худалдааг нээх', 'New listing': 'Шинэ зар',
     'Payment deadline': 'Төлбөрийн хугацаа', 'Seller instructions': 'Борлуулагчийн заавар',
     'Free bidding': 'Үнийн санал үнэгүй', 'Demo collection': 'Туршилтын цуглуулга',
+    'The auction': 'Дуудлага', 'room.': 'худалдаа.',
+    'Timed auctions from independent Mongolian shops.': 'Монголын бие даасан дэлгүүрүүдийн хугацаатай дуудлага худалдаа.',
+    'Browse auctions': 'Дуудлага худалдаа үзэх', 'Featured lot': 'Онцлох бараа',
+    'Demo catalogue': 'Туршилтын каталог', 'No real payments': 'Бодит төлбөргүй',
+    'Open for bidding': 'Санал авч буй бараа', 'All auctions': 'Бүх дуудлага худалдаа',
+    'Auction catalogue': 'Дуудлага худалдааны каталог', 'All lots': 'Бүх бараа',
+    'No lots in this view.': 'Энэ хэсэгт бараа алга.',
+    'No lots are open for bids right now.': 'Одоогоор санал авч буй бараа алга.',
+    'Lot': 'Бараа', 'bid': 'санал', 'bids': 'санал',
+    'Time left': 'Үлдсэн хугацаа', 'Waiting for close': 'Хаагдахыг хүлээж байна',
+    'Lot details': 'Барааны мэдээлэл', 'Sign in to bid': 'Санал өгөхийн тулд нэвтрэх',
+    'Minimum bid': 'Саналын доод үнэ', 'Draft terms & privacy': 'Нөхцөл ба нууцлалын төсөл',
+    'Illustrative image': 'Жишээ зураг', 'Seller': 'Борлуулагч',
+    'Winning bid': 'Ялсан үнэ', 'Last bid': 'Сүүлийн санал',
 }
 
 
@@ -85,6 +98,10 @@ def create_app(config=None):
         if not value:
             return '—'
         return datetime.fromtimestamp(value, timezone(timedelta(hours=8))).strftime('%Y.%m.%d · %H:%M') + ' UBT'
+
+    @app.template_filter('isotime')
+    def isotime(value):
+        return datetime.fromtimestamp(value, timezone.utc).isoformat()
 
     @app.context_processor
     def context():
@@ -156,6 +173,13 @@ def create_app(config=None):
         return db().execute('''SELECT a.*, s.name shop_name,s.slug, (SELECT max(amount) FROM bids WHERE auction_id=a.id) price,
            (SELECT count(*) FROM bids WHERE auction_id=a.id) bid_count FROM auctions a JOIN shops s ON s.id=a.shop_id ''' + where + ' ORDER BY a.id DESC', args).fetchall()
 
+    def catalogue_order(lots):
+        return sorted(lots, key=lambda lot: (
+            lot['state'] != 'open',
+            lot['closes_at'] if lot['state'] == 'open' else -lot['closes_at'],
+            lot['id'],
+        ))
+
     def auction_or_404(auction_id):
         rows = auctions_query('WHERE a.id=?', (auction_id,))
         if not rows:
@@ -195,7 +219,10 @@ def create_app(config=None):
 
     @app.get('/')
     def home():
-        return render_template('home.html')
+        open_lots = catalogue_order(auctions_query(
+            "WHERE a.state='open' AND s.status='approved' AND a.closes_at>unixepoch()"
+        ))
+        return render_template('home.html', featured=open_lots[0] if open_lots else None, auctions=open_lots[:3])
 
     @app.post('/inquiry')
     def inquiry():
@@ -207,7 +234,13 @@ def create_app(config=None):
     @app.get('/explore')
     def explore():
         service.close_due(db())
-        return render_template('explore.html', auctions=auctions_query("WHERE a.state!='draft'"))
+        scope = request.args.get('status', 'all')
+        if scope in ('open', 'closed'):
+            auctions = auctions_query('WHERE a.state=?', (scope,))
+        else:
+            scope = 'all'
+            auctions = auctions_query("WHERE a.state!='draft'")
+        return render_template('explore.html', auctions=catalogue_order(auctions), scope=scope)
 
     @app.get('/shops/<slug>')
     def shop(slug):
@@ -215,7 +248,12 @@ def create_app(config=None):
         seller = db().execute('SELECT * FROM shops WHERE slug=?', (slug,)).fetchone()
         if not seller:
             abort(404)
-        return render_template('shop.html', shop=seller, auctions=auctions_query("WHERE a.shop_id=? AND a.state!='draft'", (seller['id'],)))
+        auctions = catalogue_order(auctions_query("WHERE a.shop_id=? AND a.state!='draft'", (seller['id'],)))
+        return render_template('shop.html', shop=seller, auctions=auctions)
+
+    def return_lot():
+        lot = request.args.get('lot', '')
+        return int(lot) if re.fullmatch(r'[1-9][0-9]{0,11}', lot) else None
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
@@ -230,8 +268,11 @@ def create_app(config=None):
             session.update(uid=user['id'], lang=language, csrf=secrets.token_urlsafe(32))
             session.permanent = True
             service.audit(db(), user['id'], 'login', 'user', user['id'], 'Password login')
+            lot = return_lot()
+            if lot and user['role'] == 'buyer':
+                return redirect(url_for('detail', auction_id=lot))
             return redirect(url_for('seller_dashboard' if user['role'] == 'seller' else 'admin' if user['role'] == 'operator' else 'account'))
-        return render_template('auth.html', registering=False)
+        return render_template('auth.html', registering=False, lot=return_lot())
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
@@ -244,12 +285,16 @@ def create_app(config=None):
                                       (address, generate_password_hash(password), 'Bidder-' + secrets.token_hex(4).upper()))
             except sqlite3.IntegrityError:
                 raise service.RuleError('This email cannot be registered. Try signing in.', 400)
+            language = session.get('lang', 'en')
             session.clear()
-            session.update(uid=cursor.lastrowid, csrf=secrets.token_urlsafe(32))
+            session.update(uid=cursor.lastrowid, lang=language, csrf=secrets.token_urlsafe(32))
             session.permanent = True
             flash('Buyer account created. Use synthetic information in this preview.')
+            lot = return_lot()
+            if lot:
+                return redirect(url_for('detail', auction_id=lot))
             return redirect(url_for('explore'))
-        return render_template('auth.html', registering=True)
+        return render_template('auth.html', registering=True, lot=return_lot())
 
     @app.post('/logout')
     def logout():

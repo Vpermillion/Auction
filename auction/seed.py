@@ -20,10 +20,10 @@ def seed(db):
                                            (5,'buyer2@example.test','Bidder-3B91','buyer',None)]:
             db.execute('INSERT INTO users VALUES(?,?,?,?,?,?,0,?)',(uid,email,password,alias,role,shop,timestamp))
         lots = [
-            (1,1,'The everyday pendant','A simple gold-tone pendant with an organic silhouette. Synthetic listing; stock photograph is illustrative and does not document an actual item.','Demo: light surface marks; chain included.','Seller statement only: gold-tone base metal. No certificate, independent inspection or authentication.','pendant',180000,10000,timestamp+3600*6,'open'),
-            (2,1,'A moment, well kept','A classic wristwatch for daily rituals. Synthetic lot; photograph is a style reference only.','Demo: used, visible wear; service history unknown.','Seller statement only. No manufacturer authentication or independent condition report.','watch',240000,20000,timestamp+3600*24,'open'),
-            (3,2,'A little silver lining','A sculptural ring with a quiet presence. Synthetic demonstration listing with an illustrative stock photograph.','Demo: minor marks; size must be confirmed with seller.','No hallmark test or certificate. Metal description is an untested seller claim.','ring',90000,5000,timestamp+3600*36,'open'),
-            (4,1,'The archive pendant · closed demo','A completed synthetic auction to demonstrate winner instructions and seller records.','Demo only.','No inspection or authentication.','pendant',100000,10000,timestamp-3600,'closed'),
+            (1,1,'Hammered gold-tone pendant','Oval pendant with a hammered finish on a linked chain.','Demo: light surface marks. Chain included.','Seller statement: gold-tone base metal. No certificate or independent inspection.','pendant',180000,10000,timestamp+3600*6,'open'),
+            (2,1,'Steel dress watch','Round steel case, ivory dial and brown leather strap.','Demo: used, with wear to the case and strap. Service history unknown.','Seller statement only. No manufacturer authentication or independent condition report.','watch',240000,20000,timestamp+3600*24,'open'),
+            (3,2,'Sculpted silver-tone band','Wide band with an asymmetric curved profile.','Demo: minor marks. Confirm size with the seller.','The metal description is a seller claim. No hallmark test or certificate.','ring',90000,5000,timestamp+3600*36,'open'),
+            (4,1,'Archive pendant','A completed synthetic auction with a recorded winner.','Demo only.','No inspection or authentication.','pendant',100000,10000,timestamp-3600,'closed'),
         ]
         for aid,sid,title,description,condition,evidence,image,start,increment,close,state in lots:
             db.execute('''INSERT INTO auctions(id,shop_id,title,description,condition,evidence,image,start_price,increment,closes_at,

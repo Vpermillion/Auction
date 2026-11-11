@@ -1,6 +1,70 @@
-{% extends 'base.html' %}{% block content %}
-<section class="hero home-hero"><div><p class="eyebrow"><span class="dot"></span> FOR INDEPENDENT SHOPS & PROFESSIONAL SELLERS</p><h1>Your shop.<br>Your audience.<br><em>Your auction.</em></h1><p class="lede">A branded space to turn your next collection into an event. You bring the objects and your community. We keep the bidding in order.</p><div class="actions"><a class="button" href="#pilot">{{ t('Request a pilot') }} <span>↗</span></a><a class="inline-link" href="/shops/altan-studio">Visit the demo shop ↗</a></div><p class="caption">Early pilot · Manual onboarding · Pricing agreed with you</p></div><div class="hero-photo"><img src="{{ url_for('static',filename='images/pendant.jpg') }}" alt="Illustrative jewelry photograph, not an actual auction item"><div class="photo-note"><span>ALTAN STUDIO / DEMO LOT 001</span><strong>Small objects.<br>New possibilities.</strong><a href="/auctions/1">Explore the demo auction ↗</a></div><span class="photo-label">ILLUSTRATIVE STOCK PHOTOGRAPH</span></div></section>
-<div class="value-strip"><span>01 / Your own branded shop</span><span>02 / Clear, recorded bidding</span><span>03 / Payment directly to you</span></div>
-<section class="section"><div class="section-heading"><div><p class="eyebrow">A SMALL, PRACTICAL START</p><h2>One seller. One useful auction.<br>Then see what comes next.</h2></div><p>Built for established shops with inventory, a place to trade, and an audience of their own. This is a business hypothesis we want to test with a paying pilot seller.</p></div><div class="three-col steps"><article><span>01</span><h3>Make it your space</h3><p>We manually onboard your shop, agree the event and price, and help prepare your first listings.</p></article><article><span>02</span><h3>Open the bidding</h3><p>Share your shop page. Buyers sign in and place free bids against clear prices, increments and closing rules.</p></article><article><span>03</span><h3>Keep the relationship</h3><p>You arrange payment, pickup and customer remedies. Review winners, record outcomes and export your records.</p></article></div></section>
-<section class="pilot-section" id="pilot"><div><p class="eyebrow">LET'S TEST IT TOGETHER</p><h2>A first auction,<br><em>with a human behind it.</em></h2><p>No settled subscription price or transaction commission yet. We’ll agree a simple per-event or subscription pilot fee before any event.</p><p class="caption">No payment processing is active. Draft policies require Mongolian legal review before a real-money launch.</p></div><form class="panel" method="post" action="/inquiry"><input type="hidden" name="csrf" value="{{ csrf }}"><h3>{{ t('Request a pilot') }}</h3><p>Tell the operator about your shop. This preview stores your inquiry locally; it does not send email. Use synthetic details.</p><label>{{ t('Email') }}<input type="email" name="email" required maxlength="254" placeholder="shop@example.test"></label><label>Your shop & first auction<textarea name="message" required minlength="10" maxlength="2000" rows="4" placeholder="What do you sell, and what would a useful first auction look like?"></textarea></label><button class="button">{{ t('Send inquiry') }} ↗</button></form></section>
+{% extends 'base.html' %}
+{% block content %}
+<section class="auction-hero page-width">
+  <div class="hero-copy">
+    <p class="eyebrow ruled-label">Ulaanbaatar, Mongolia</p>
+    <h1>{{ t('The auction') }}<br><em>{{ t('room.') }}</em></h1>
+    <p class="lede">{{ t('Timed auctions from independent Mongolian shops.') }}</p>
+    <div class="actions">
+      <a class="button" href="{{ url_for('explore') }}">{{ t('Browse auctions') }} <span class="arrow" aria-hidden="true"></span></a>
+      <a class="inline-link" href="#pilot">{{ t('For sellers') }} <span aria-hidden="true">↓</span></a>
+    </div>
+  </div>
+  {% if featured %}
+    <a class="featured-lot" href="{{ url_for('detail', auction_id=featured.id) }}">
+      <img src="{{ url_for('static', filename='images/catalogue-' + featured.image + '.jpg') }}" alt="" fetchpriority="high" width="1320" height="880">
+      <span class="feature-label">{{ t('Featured lot') }} <span aria-hidden="true">/</span> {{ '%03d'|format(featured.id) }}</span>
+      <span class="feature-caption">
+        <span>
+          <span class="feature-seller">{{ featured.shop_name }}</span>
+          <strong class="feature-title">{{ featured.title }}</strong>
+        </span>
+        <span class="feature-value">
+          <small>{{ t('Current bid') if featured.price else t('Starting price') }}</small>
+          <strong>{{ (featured.price or featured.start_price)|mnt }}</strong>
+        </span>
+      </span>
+    </a>
+  {% else %}
+    <div class="featured-lot">
+      <img src="{{ url_for('static', filename='images/catalogue-pendant.jpg') }}" alt="" fetchpriority="high" width="1320" height="880">
+      <span class="feature-label">{{ t('Illustrative image') }}</span>
+    </div>
+  {% endif %}
+</section>
+
+<div class="auction-strip page-width">
+  <span><span class="status-dot" aria-hidden="true"></span>{{ t('Free bidding') }}</span>
+  <span>MNT <span class="strip-divider" aria-hidden="true">/</span> Asia/Ulaanbaatar</span>
+</div>
+
+<section class="section page-width">
+  <div class="section-heading">
+    <h2>{{ t('Open for bidding') }}</h2>
+    <a class="inline-link" href="{{ url_for('explore') }}">{{ t('All auctions') }} <span class="arrow" aria-hidden="true"></span></a>
+  </div>
+  {% set empty_message = 'No lots are open for bids right now.' %}
+  {% include '_cards.html' %}
+</section>
+
+<section class="pilot-section page-width" id="pilot">
+  <div class="pilot-copy">
+    <p class="eyebrow ruled-label">{{ t('For sellers') }}</p>
+    <h2>Run an auction<br>for your shop.</h2>
+    <p class="lede">Give your customers one page to browse lots, read the rules and place bids under your shop’s name.</p>
+    <dl class="seller-steps">
+      <div><dt>Publish</dt><dd>Set the opening price, closing time and pickup terms.</dd></div>
+      <div><dt>Share</dt><dd>Invite your customers to bid on your shop’s page.</dd></div>
+      <div><dt>Fulfill</dt><dd>Contact the winner and record payment and pickup.</dd></div>
+    </dl>
+  </div>
+  <form class="panel pilot-form" method="post" action="{{ url_for('inquiry') }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <h3>{{ t('Request a pilot') }}</h3>
+    <p class="caption">Use sample details in this preview.</p>
+    <label>{{ t('Email') }}<input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="shop@example.test"></label>
+    <label>Shop and proposed auction<textarea name="message" required minlength="10" maxlength="2000" rows="4" placeholder="What would you like to auction?"></textarea></label>
+    <button class="button">{{ t('Send inquiry') }} <span class="arrow" aria-hidden="true"></span></button>
+  </form>
+</section>
 {% endblock %}

@@ -1,8 +1,136 @@
-{% extends 'base.html' %}{% block title %}{{ a.title }} · {{ shop.name }}{% endblock %}{% block content %}
-<div class="breadcrumbs"><a href="/explore">{{ t('Explore auctions') }}</a> / <a href="/shops/{{ shop.slug }}">{{ shop.name }}</a> / Lot {{ '%03d'|format(a.id) }}</div>
-<section class="detail-grid" data-auction="{{ a.id }}" data-bidder="{{ user.alias if user else 'anonymous' }}" data-server-time="{{ timestamp }}" data-close="{{ a.closes_at }}"><div><div class="detail-image"><img src="{{ url_for('static',filename='images/'+a.image+'.jpg') }}" alt="Illustrative stock photograph for {{ a.title }}; not evidence of the demo item"><span class="image-caption">ILLUSTRATIVE PHOTOGRAPH · SYNTHETIC LOT</span></div><p class="caption">Photographs are illustrative stock images. They do not document an actual item or its condition.</p><div class="item-copy"><p class="eyebrow">ABOUT THIS OBJECT</p><h2>A closer look.</h2><p>{{ a.description }}</p><h3>{{ t('Condition') }}</h3><p>{{ a.condition }}</p><h3>{{ t('Seller-provided evidence') }}</h3><p>{{ a.evidence }}</p><p class="notice">Seller identity review, seller documents, independent inspection and item authentication are different checks. No independent item authentication has been performed for this demo.</p></div></div>
-<div class="bid-column"><div class="card-meta"><a href="/shops/{{ shop.slug }}">{{ shop.name }} ↗</a><span>LOT {{ '%03d'|format(a.id) }}</span></div><h1>{{ a.title }}</h1><div class="state-row"><span class="status {{ a.state }}" id="live-state">{{ t(a.state|capitalize) }}</span><span>{{ t('Free bidding') }}</span></div><div class="bid-price"><small>{{ t('Current bid') if a.price else t('Starting price') }}</small><strong id="live-price">{{ (a.price or a.start_price)|mnt }}</strong></div><div class="closing"><span>{{ t('Closes') }}<strong id="closing-time">{{ a.closes_at|localtime }}</strong></span><span id="countdown" aria-live="off">Server time governs</span></div>
-{% if a.state=='open' %}<form class="bid-form" action="/auctions/{{ a.id }}/bid" method="post" id="bid-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="request_key" value="{{ request_key }}"><label for="amount">{{ t('Bid amount (MNT)') }}</label><input id="amount" name="amount" type="number" step="1" min="{{ a.price+a.increment if a.price else a.start_price }}" value="{{ a.price+a.increment if a.price else a.start_price }}" required max="1000000000000"><label class="checkbox"><input type="checkbox" id="accept-bid" required><span>{% if lang=='mn' %}Би барааны мэдээлэл, дүрэм, борлуулагчийн нөхцөлтэй танилцлаа. Энэ нь туршилт тул бодит мөнгө шилжүүлэхгүй.{% else %}I have read the item details, rules and seller policies. This is a demo; I will not send real money.{% endif %}</span></label>{% if user and user.role=='buyer' %}<button class="button wide" id="bid-submit">{{ t('Place bid') }} ↗</button>{% elif user %}<p class="notice">Seller and operator accounts cannot bid. Use an independent buyer account.</p>{% else %}<a class="button wide" href="/login">{{ t('Sign in') }} {{ t('Place bid')|lower }} ↗</a>{% endif %}<p id="bid-feedback" role="status"></p><button class="text-button hidden" type="button" id="retry-bid">Retry same request</button><p class="caption" id="sync-status">Live prices refresh every 5 seconds. Server acceptance is final.</p></form>{% else %}<div class="notice">{{ t(a.state|capitalize) }}. {% if a.state=='closed' %}The winning account can see its instructions in <a href="/account">My bids</a>.{% else %}No bids are accepted. Accepted bid history remains below.{% endif %}</div>{% endif %}
-<div class="rules"><h3>{{ t('Auction rules') }}</h3><dl><div><dt>{{ t('Starting price') }}</dt><dd>{{ a.start_price|mnt }}</dd></div><div><dt>{{ t('Minimum increment') }}</dt><dd>{{ a.increment|mnt }}</dd></div><div><dt>Soft close</dt><dd>{{ a.soft_close }} seconds</dd></div><div><dt>{{ t('Payment deadline') }}</dt><dd>{{ a.payment_hours }} hours after close</dd></div></dl>{% if lang=='mn' %}<p>Эхлэх үнэ нь борлуулагчийн зөвшөөрөх доод үнэ. Хаагдах хугацаанаас {{ a.soft_close }} секундийн өмнө хүчинтэй санал ирвэл хугацаа тухайн саналаас {{ a.soft_close }} секундээр сунгагдана. Хугацаа дуусах мөчид эсвэл дараа ирсэн саналыг хүлээн авахгүй. Хамгийн өндөр хүчинтэй санал ялагч болно.</p>{% else %}<p>Starting price is the minimum acceptable sale price. {% if a.soft_close %}A valid bid in the final {{ a.soft_close }} seconds extends the deadline to {{ a.soft_close }} seconds after that bid, repeatedly if needed.{% else %}No soft-close extension applies.{% endif %} Bids at or after the server deadline are rejected. Highest accepted bid wins.</p>{% endif %}<p>{{ a.fees }}</p><p>Accepted bids cannot be edited or withdrawn through the site. Cancellation requires a recorded reason; correction requires a new listing. A browser countdown does not accept or close bids.</p></div></div></section>
-<section class="detail-lower"><div><div class="section-heading"><h2>{{ t('Bid history') }}</h2><span class="caption">PUBLIC ALIASES ONLY</span></div><div id="bid-history" aria-live="polite">{% for bid in bids %}<div class="bid-row"><span>{{ bid.alias }}</span><time>{{ bid.created_at|localtime }}</time><strong>{{ bid.amount|mnt }}</strong></div>{% else %}<p>{{ t('No bids yet') }}</p>{% endfor %}</div></div><div><details open><summary>{{ t('Seller policies') }}</summary><p>{{ a.seller_terms }}</p></details><details><summary>{{ t('Report a concern') }}</summary><p>For item or fulfillment issues, contact {{ shop.contact }}. Report suspected collusion, misleading claims or software concerns here. Controls do not eliminate shill bidding.</p>{% if user %}<form method="post" action="/auctions/{{ a.id }}/report"><input type="hidden" name="csrf" value="{{ csrf }}"><label>Private report<textarea name="reason" required minlength="10" maxlength="2000" rows="4"></textarea></label><button class="button">Save report</button></form>{% else %}<a href="/login">Sign in to submit a report</a>{% endif %}</details><a class="caption" href="/policies">Draft platform terms & privacy →</a></div></section>
+{% extends 'base.html' %}
+{% block title %}{{ a.title }} · {{ shop.name }}{% endblock %}
+{% block content %}
+<nav class="breadcrumbs page-width" aria-label="Breadcrumb">
+  <a href="{{ url_for('explore') }}">{{ t('Explore auctions') }}</a>
+  <span aria-hidden="true">/</span>
+  <a href="{{ url_for('shop', slug=shop.slug) }}">{{ shop.name }}</a>
+  <span aria-hidden="true">/</span>
+  <span aria-current="page">{{ t('Lot') }} {{ '%03d'|format(a.id) }}</span>
+</nav>
+{% set minimum = a.price + a.increment if a.price else a.start_price %}
+<section class="detail-grid page-width" data-auction="{{ a.id }}" data-bidder="{{ user.alias if user else 'anonymous' }}" data-server-time="{{ timestamp }}" data-close="{{ a.closes_at }}" data-state="{{ a.state }}">
+  <div class="lot-visual">
+    <figure class="lot-gallery">
+      <div class="detail-image">
+        <img src="{{ url_for('static', filename='images/catalogue-' + a.image + '.jpg') }}" alt="Illustration for {{ a.title }}" fetchpriority="high" width="1320" height="880">
+        <span class="feature-label">{{ t('Lot') }} {{ '%03d'|format(a.id) }}</span>
+      </div>
+      <figcaption class="caption">{{ t('Illustrative image') }} · Synthetic lot</figcaption>
+    </figure>
+    <section class="item-copy" id="lot-details">
+      <h2>{{ t('Lot details') }}</h2>
+      <p>{{ a.description }}</p>
+      <div class="condition">
+        <h3>{{ t('Condition') }}</h3>
+        <p>{{ a.condition }}</p>
+      </div>
+      <div class="condition">
+        <h3>{{ t('Seller-provided evidence') }}</h3>
+        <p>{{ a.evidence }}</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="bid-column">
+    <div class="lot-byline">
+      <a href="{{ url_for('shop', slug=shop.slug) }}">{{ shop.name }} <span class="arrow" aria-hidden="true"></span></a>
+      <span class="status {{ a.state }}" id="live-state"><span class="status-dot" aria-hidden="true"></span><span data-state-label>{{ t(a.state|capitalize) }}</span></span>
+    </div>
+    <h1>{{ a.title }}</h1>
+    <div class="bid-console">
+      <div class="bid-price">
+        <small>{{ t('Starting price' if not a.price else 'Winning bid' if a.state == 'closed' else 'Current bid' if a.state == 'open' else 'Last bid') }}</small>
+        <strong id="live-price">{{ (a.price or a.start_price)|mnt }}</strong>
+      </div>
+      <div class="closing">
+        <div><span id="closing-label">{{ t('Closes') if a.state == 'open' else t('Closed') }}</span><time id="closing-time" datetime="{{ a.closes_at|isotime }}">{{ a.closes_at|localtime }}</time></div>
+        <div class="time-remaining"><span>{{ t('Time left') }}</span><strong id="countdown" aria-live="off">{{ t('Waiting for close') if a.state == 'open' else t(a.state|capitalize) }}</strong></div>
+      </div>
+      {% if a.state == 'open' %}
+        {% if user and user.role == 'buyer' %}
+          <form class="bid-form" action="{{ url_for('bid_form', auction_id=a.id) }}" method="post" id="bid-form">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <input type="hidden" name="request_key" value="{{ request_key }}">
+            <label for="amount">{{ t('Bid amount (MNT)') }}</label>
+            <div class="amount-field">
+              <input id="amount" name="amount" type="number" inputmode="numeric" step="1" min="{{ minimum }}" value="{{ minimum }}" required max="1000000000000" aria-describedby="bid-minimum">
+              <span aria-hidden="true">₮</span>
+            </div>
+            <p class="caption" id="bid-minimum">{{ t('Minimum bid') }} <span id="minimum-value">{{ minimum|mnt }}</span></p>
+            <label class="checkbox">
+              <input type="checkbox" id="accept-bid" required>
+              <span>{% if lang == 'mn' %}Би барааны мэдээлэл, дүрэм, борлуулагчийн нөхцөлтэй танилцлаа.{% else %}I’ve read the lot details, auction rules and seller policies.{% endif %}</span>
+            </label>
+            <button class="button wide" id="bid-submit">{{ t('Place bid') }} <span class="arrow" aria-hidden="true"></span></button>
+            <p id="bid-feedback" role="status"></p>
+            <button class="button wide hidden" type="button" id="retry-bid">Retry same request</button>
+          </form>
+        {% elif user %}
+          <p class="notice">Bidding is available to buyer accounts.</p>
+        {% else %}
+          <div data-bid-entry>
+            <p class="caption minimum-note">{{ t('Minimum bid') }} <span id="minimum-value">{{ minimum|mnt }}</span></p>
+            <a class="button wide" href="{{ url_for('login', lot=a.id) }}">{{ t('Sign in to bid') }} <span class="arrow" aria-hidden="true"></span></a>
+          </div>
+        {% endif %}
+        <p class="caption sync-status" id="sync-status" role="status"></p>
+      {% elif a.state == 'closed' and user and user.role == 'buyer' %}
+        <a class="inline-link" href="{{ url_for('account') }}">{{ t('My bids') }} <span class="arrow" aria-hidden="true"></span></a>
+      {% endif %}
+    </div>
+    <section class="rules" id="auction-rules">
+      <h2>{{ t('Auction rules') }}</h2>
+      <dl>
+        <div><dt>{{ t('Starting price') }}</dt><dd>{{ a.start_price|mnt }}</dd></div>
+        <div><dt>{{ t('Minimum increment') }}</dt><dd>{{ a.increment|mnt }}</dd></div>
+        <div><dt>Soft close</dt><dd>{{ a.soft_close ~ ' s' if a.soft_close else 'Off' }}</dd></div>
+        <div><dt>{{ t('Payment deadline') }}</dt><dd>{{ a.payment_hours }} hours after close</dd></div>
+      </dl>
+      {% if lang == 'mn' %}
+        <p>Эхлэх үнэ нь борлуулагчийн зөвшөөрөх доод үнэ. {% if a.soft_close %}Сүүлийн {{ a.soft_close }} секундэд хүчинтэй санал ирвэл тухайн саналаас хойш {{ a.soft_close }} секунд хүртэл хугацаа сунгагдана. {% endif %}Хугацаа дуусахад хамгийн өндөр хүчинтэй санал ялагч болно.</p>
+      {% else %}
+        <p>The starting price is the minimum sale price. {% if a.soft_close %}A valid bid in the last {{ a.soft_close }} seconds moves the deadline to {{ a.soft_close }} seconds after that bid. {% endif %}The highest accepted bid before the server deadline wins.</p>
+      {% endif %}
+      <p>{{ a.fees }}</p>
+      <p>Accepted bids stay in the record. Any cancellation requires a recorded reason.</p>
+    </section>
+  </div>
+</section>
+
+<section class="detail-lower page-width">
+  <div>
+    <div class="section-heading">
+      <h2>{{ t('Bid history') }}</h2>
+      <span class="caption">Public aliases</span>
+    </div>
+    <div id="bid-history" aria-live="polite">
+      {% for bid in bids %}
+        <div class="bid-row"><span>{{ bid.alias }}</span><time datetime="{{ bid.created_at|isotime }}">{{ bid.created_at|localtime }}</time><strong>{{ bid.amount|mnt }}</strong></div>
+      {% else %}
+        <p class="caption">{{ t('No bids yet') }}</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div>
+    <details open id="seller-policies">
+      <summary>{{ t('Seller policies') }}</summary>
+      <p>{{ a.seller_terms }}</p>
+    </details>
+    <details>
+      <summary>{{ t('Report a concern') }}</summary>
+      <p>Contact {{ shop.contact }} about condition or fulfillment. Send concerns about bidding or misleading claims to the operator.</p>
+      {% if user %}
+        <form method="post" action="{{ url_for('report', auction_id=a.id) }}">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <label>Private report<textarea name="reason" required minlength="10" maxlength="2000" rows="4"></textarea></label>
+          <button class="button">Save report</button>
+        </form>
+      {% else %}
+        <a class="inline-link" href="{{ url_for('login', lot=a.id) }}">Sign in to submit a report <span class="arrow" aria-hidden="true"></span></a>
+      {% endif %}
+    </details>
+    <a class="inline-link caption" href="{{ url_for('policies') }}">{{ t('Draft terms & privacy') }} <span class="arrow" aria-hidden="true"></span></a>
+  </div>
+</section>
 {% endblock %}

@@ -1,1 +1,20 @@
-{% extends 'base.html' %}{% block content %}<section class="page-intro"><p class="eyebrow">THE DEMO COLLECTION / 2026</p><h1>{{ t('Your next great find.') }}</h1><p class="lede">Independent shops. Clear rules. A little anticipation.</p><div class="collection-meta"><span>{{ auctions|length }} demo lots</span><span>{{ t('Free bidding') }} · MNT · Ulaanbaatar time</span></div></section><section class="section catalog">{% include '_cards.html' %}</section>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ t('Auction catalogue') }} · Auction House{% endblock %}
+{% block content %}
+<section class="page-intro page-width catalogue-intro">
+  <p class="eyebrow ruled-label">{{ t('Demo catalogue') }}</p>
+  <h1>{{ t('Auction catalogue') }}</h1>
+  <p class="lede">{{ t('Timed auctions from independent Mongolian shops.') }}</p>
+</section>
+<section class="section page-width catalogue">
+  <div class="catalogue-toolbar">
+    <nav class="catalogue-filters" aria-label="Auction status">
+      {% for key, label in [('all', 'All lots'), ('open', 'Open'), ('closed', 'Closed')] %}
+        <a href="{{ url_for('explore', status=key if key != 'all' else None) }}" {% if scope == key %}aria-current="page"{% endif %}>{{ t(label) }}</a>
+      {% endfor %}
+    </nav>
+    <span class="caption">{{ auctions|length }} {{ 'бараа' if lang == 'mn' else 'lot' if auctions|length == 1 else 'lots' }} · MNT</span>
+  </div>
+  {% include '_cards.html' %}
+</section>
+{% endblock %}

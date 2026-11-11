@@ -1,6 +1,24 @@
-# Demonstration photographs
+# Catalogue assets
 
-All photos are bundled locally for the synthetic preview. They are illustrative style references, not seller evidence, and do not imply a photographer's endorsement of Auction House or a relationship with any demo seller.
+## Images used in the catalogue
+
+The catalogue illustrations were generated for this demo with OpenAI ImageGen. They depict fictional inventory and provide no evidence about an actual item's condition or materials.
+
+| File | Image brief |
+| --- | --- |
+| `static/images/catalogue-pendant.jpg` | Hammered gold-tone oval pendant and fine chain on black slate, lit from the side with warm light |
+| `static/images/catalogue-watch.jpg` | Unbranded steel dress watch, ivory dial and worn brown leather strap on a warm charcoal surface |
+| `static/images/catalogue-ring.jpg` | Sculpted silver-tone band on basalt, lit from above with warm reflections |
+
+The generated files were resized to 1320 pixels wide and encoded as JPEGs for the website. Use seller-controlled photographs with permission and accurate condition coverage before a real auction.
+
+## Fonts
+
+The Latin and Cyrillic subsets of Cormorant Garamond and Inter are bundled locally. Their SIL Open Font License texts are in `static/fonts/`.
+
+## Original stock photographs
+
+These photos were bundled for the original pilot. The catalogue currently uses the illustrations above.
 
 | Local file | Photographer and source | Original image ID |
 | --- | --- | --- |

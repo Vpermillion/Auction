@@ -1,1 +1,30 @@
-<div class="auction-grid">{% for a in auctions %}<article class="auction-card"><a class="card-image" href="/auctions/{{ a.id }}"><img src="{{ url_for('static',filename='images/'+a.image+'.jpg') }}" alt="Illustrative {{ a.image }} stock photograph"><span class="status {{ a.state }}">{{ t(a.state|capitalize) }}</span><span class="lot">DEMO LOT {{ '%03d'|format(a.id) }}</span></a><div class="card-meta"><a href="/shops/{{ a.slug }}">{{ a.shop_name }}</a><span>{{ a.bid_count }} bids</span></div><h3><a href="/auctions/{{ a.id }}">{{ a.title }}</a></h3><div class="card-bottom"><div><small>{{ t('Current bid') if a.price else t('Starting price') }}</small><strong>{{ (a.price or a.start_price)|mnt }}</strong></div><a class="round-link" href="/auctions/{{ a.id }}" aria-label="View {{ a.title }}">↗</a></div><p class="caption">{{ t('Closes') }} {{ a.closes_at|localtime }}</p></article>{% else %}<p class="empty">No published auctions yet. Check back after the seller opens a listing.</p>{% endfor %}</div>
+<div class="auction-grid">
+  {% for a in auctions %}
+    <article class="auction-card">
+      <a class="card-image" href="{{ url_for('detail', auction_id=a.id) }}" aria-label="{{ t('View auction') }} · {{ a.title }}">
+        <img src="{{ url_for('static', filename='images/catalogue-' + a.image + '.jpg') }}" alt="" loading="lazy" width="1320" height="880">
+        <span class="status {{ a.state }}"><span class="status-dot" aria-hidden="true"></span>{{ t(a.state|capitalize) }}</span>
+      </a>
+      <div class="card-content">
+        <div class="card-meta">
+          <a href="{{ url_for('shop', slug=a.slug) }}">{{ a.shop_name }}</a>
+          <span>{{ t('Lot') }} {{ '%03d'|format(a.id) }}</span>
+        </div>
+        <h3><a href="{{ url_for('detail', auction_id=a.id) }}">{{ a.title }}</a></h3>
+        <div class="card-bottom">
+          <div>
+            <small>{{ t('Starting price' if not a.price else 'Winning bid' if a.state == 'closed' else 'Current bid' if a.state == 'open' else 'Last bid') }}</small>
+            <strong>{{ (a.price or a.start_price)|mnt }}</strong>
+          </div>
+          <a class="lot-link" href="{{ url_for('detail', auction_id=a.id) }}" aria-label="{{ t('View auction') }} · {{ a.title }}"><span class="arrow" aria-hidden="true"></span></a>
+        </div>
+        <div class="card-timing">
+          <span>{{ a.bid_count }} {{ t('bid' if a.bid_count == 1 else 'bids') }}</span>
+          <time datetime="{{ a.closes_at|isotime }}">{{ a.closes_at|localtime }}</time>
+        </div>
+      </div>
+    </article>
+  {% else %}
+    <p class="empty">{{ t(empty_message|default('No lots in this view.')) }}</p>
+  {% endfor %}
+</div>

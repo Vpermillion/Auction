@@ -1,1 +1,35 @@
-{% extends 'base.html' %}{% block title %}{{ shop.name }} · Auction House{% endblock %}{% block content %}<section class="shop-hero"><div class="shop-monogram">{{ shop.name[0] }}<span>STUDIO</span></div><div><p class="eyebrow">INDEPENDENT SELLER / SYNTHETIC DEMO</p><h1>{{ shop.name }}</h1><p class="lede">{{ t('Objects with a story.') }}<br>{{ t('A considered way to bid.') }}</p><p class="caption">{{ shop.identity_note }}</p>{% if shop.status!='approved' %}<p class="notice">Shop suspended. No new bids are accepted.</p>{% endif %}</div><aside><h3>{{ t('Pickup & contact') }}</h3><p>{{ shop.address }}</p><p>{{ shop.contact }}</p><span class="small-tag">DEMO SELLER · NO AUTHENTICATION BADGE</span></aside></section><section class="section catalog"><div class="section-heading"><h2>{{ t('Demo collection') }}</h2><span class="caption">All prices in MNT · No real inventory</span></div>{% include '_cards.html' %}<details class="policy-details"><summary>{{ t('Seller policies') }}</summary><p>{{ shop.terms }}</p><p>Listing-specific terms are frozen on each auction. Those published terms govern the demo bidding flow.</p></details></section>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ shop.name }} · Auction House{% endblock %}
+{% block content %}
+<nav class="breadcrumbs page-width" aria-label="Breadcrumb">
+  <a href="{{ url_for('explore') }}">{{ t('Explore auctions') }}</a><span aria-hidden="true">/</span><span>{{ shop.name }}</span>
+</nav>
+<section class="shop-hero page-width">
+  <div class="shop-monogram" aria-hidden="true">{{ shop.name[0] }}</div>
+  <div class="shop-identity">
+    <p class="eyebrow">{{ t('Seller') }}</p>
+    <h1>{{ shop.name }}</h1>
+    <p class="caption">{{ shop.identity_note }}</p>
+    {% if shop.status != 'approved' %}
+      <p class="notice">Shop suspended. No new bids are accepted.</p>
+    {% endif %}
+  </div>
+  <aside>
+    <h2>{{ t('Pickup & contact') }}</h2>
+    <p>{{ shop.address }}</p>
+    <p>{{ shop.contact }}</p>
+  </aside>
+</section>
+<section class="section page-width catalogue">
+  <div class="section-heading">
+    <h2>{{ t('Demo collection') }}</h2>
+    <a class="inline-link" href="#shop-policies">{{ t('Seller policies') }} <span aria-hidden="true">↓</span></a>
+  </div>
+  {% include '_cards.html' %}
+  <details class="policy-details" id="shop-policies">
+    <summary>{{ t('Seller policies') }}</summary>
+    <p>{{ shop.terms }}</p>
+    <p>Each lot displays the terms agreed for that auction.</p>
+  </details>
+</section>
+{% endblock %}

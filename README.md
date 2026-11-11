@@ -18,7 +18,7 @@ Open [http://127.0.0.1:5055](http://127.0.0.1:5055). Linux/macOS: use `.venv/bin
 
 The environment variables in `.env.example` must be exported by your shell; there is no automatic dotenv loading. `AUCTION_DB` defaults to ignored `instance/auction.sqlite3`. A random session secret is created once in ignored `instance/session-secret` if `APP_SECRET` is absent; use a secret manager/environment injection for a hosted preview. Keep the same secret across restarts. `COOKIE_SECURE=0` is for loopback HTTP only. No secrets or user database are tracked.
 
-`init-db` is repeatable. `seed-demo` refuses an occupied users table; use a new `AUCTION_DB` path and repeat both commands for a clean demo. Seed deadlines are relative to creation: 6, 24 and 36 hours ahead, plus one completed lot to show winner instructions. This source includes bundled stock photos, credited in `docs/ASSETS.md`; they illustrate synthetic listings and are not item evidence.
+`init-db` is repeatable. `seed-demo` refuses an occupied users table. Use a new `AUCTION_DB` path and repeat both commands for a clean demo. Seed deadlines are 6, 24 and 36 hours ahead, plus one completed lot to show winner instructions. The catalogue uses generated illustrations of synthetic items. See [catalogue assets](docs/ASSETS.md) for image and font provenance.
 
 ## Demonstrate the journey
 
