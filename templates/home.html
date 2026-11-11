@@ -1,36 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="auction-hero page-width">
+<section class="auction-hero page-width" aria-labelledby="auction-room-title">
   <div class="hero-copy">
     <p class="eyebrow ruled-label">Ulaanbaatar, Mongolia</p>
-    <h1>{{ t('The auction') }}<br><em>{{ t('room.') }}</em></h1>
+    <h1 id="auction-room-title">{{ t('The auction') }}<br><em>{{ t('room.') }}</em></h1>
     <p class="lede">{{ t('Timed auctions from independent Mongolian shops.') }}</p>
     <div class="actions">
       <a class="button" href="{{ url_for('explore') }}">{{ t('Browse auctions') }} <span class="arrow" aria-hidden="true"></span></a>
       <a class="inline-link" href="#pilot">{{ t('For sellers') }} <span aria-hidden="true">↓</span></a>
     </div>
   </div>
-  {% if featured %}
-    <a class="featured-lot" href="{{ url_for('detail', auction_id=featured.id) }}">
-      <img src="{{ url_for('static', filename='images/catalogue-' + featured.image + '.jpg') }}" alt="" fetchpriority="high" width="1320" height="880">
-      <span class="feature-label">{{ t('Featured lot') }} <span aria-hidden="true">/</span> {{ '%03d'|format(featured.id) }}</span>
-      <span class="feature-caption">
-        <span>
-          <span class="feature-seller">{{ featured.shop_name }}</span>
+  <div class="gallery-stage">
+    <img class="gallery-interior" src="{{ url_for('static', filename='images/auction-gallery.webp') }}" alt="" fetchpriority="high" width="1800" height="693">
+    {% if featured %}
+      <a class="featured-lot" href="{{ url_for('detail', auction_id=featured.id) }}">
+        <img src="{{ url_for('static', filename='images/catalogue-' + featured.image + '.jpg') }}" alt="" width="1320" height="880">
+        <span class="feature-caption">
+          <span class="feature-index">{{ t('Featured lot') }} {{ '%03d'|format(featured.id) }} <span aria-hidden="true">/</span> {{ featured.shop_name }}</span>
           <strong class="feature-title">{{ featured.title }}</strong>
+          <span class="feature-meta">
+            <span class="feature-value">
+              <small>{{ t('Current bid') if featured.price else t('Starting price') }}</small>
+              <strong>{{ (featured.price or featured.start_price)|mnt }}</strong>
+            </span>
+            <span class="arrow" aria-hidden="true"></span>
+          </span>
         </span>
-        <span class="feature-value">
-          <small>{{ t('Current bid') if featured.price else t('Starting price') }}</small>
-          <strong>{{ (featured.price or featured.start_price)|mnt }}</strong>
-        </span>
-      </span>
-    </a>
-  {% else %}
-    <div class="featured-lot">
-      <img src="{{ url_for('static', filename='images/catalogue-pendant.jpg') }}" alt="" fetchpriority="high" width="1320" height="880">
-      <span class="feature-label">{{ t('Illustrative image') }}</span>
-    </div>
-  {% endif %}
+      </a>
+    {% endif %}
+  </div>
 </section>
 
 <div class="auction-strip page-width">

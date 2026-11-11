@@ -1,14 +1,16 @@
 <div class="auction-grid">
   {% for a in auctions %}
     <article class="auction-card">
+      <div class="card-index">
+        <span>{{ t('Lot') }} {{ '%03d'|format(a.id) }}</span>
+        <span class="status {{ a.state }}"><span class="status-dot" aria-hidden="true"></span>{{ t(a.state|capitalize) }}</span>
+      </div>
       <a class="card-image" href="{{ url_for('detail', auction_id=a.id) }}" aria-label="{{ t('View auction') }} · {{ a.title }}">
         <img src="{{ url_for('static', filename='images/catalogue-' + a.image + '.jpg') }}" alt="" loading="lazy" width="1320" height="880">
-        <span class="status {{ a.state }}"><span class="status-dot" aria-hidden="true"></span>{{ t(a.state|capitalize) }}</span>
       </a>
       <div class="card-content">
         <div class="card-meta">
           <a href="{{ url_for('shop', slug=a.slug) }}">{{ a.shop_name }}</a>
-          <span>{{ t('Lot') }} {{ '%03d'|format(a.id) }}</span>
         </div>
         <h3><a href="{{ url_for('detail', auction_id=a.id) }}">{{ a.title }}</a></h3>
         <div class="card-bottom">

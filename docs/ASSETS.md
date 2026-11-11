@@ -6,11 +6,12 @@ The catalogue illustrations were generated for this demo with OpenAI ImageGen. T
 
 | File | Image brief |
 | --- | --- |
+| `static/images/auction-gallery.webp` | Contemporary East Asian gallery with ebonized timber lattice, brass fittings and an amber paper-screen alcove framed by a round doorway |
 | `static/images/catalogue-pendant.jpg` | Hammered gold-tone oval pendant and fine chain on black slate, lit from the side with warm light |
 | `static/images/catalogue-watch.jpg` | Unbranded steel dress watch, ivory dial and worn brown leather strap on a warm charcoal surface |
 | `static/images/catalogue-ring.jpg` | Sculpted silver-tone band on basalt, lit from above with warm reflections |
 
-The generated files were resized to 1320 pixels wide and encoded as JPEGs for the website. Use seller-controlled photographs with permission and accurate condition coverage before a real auction.
+The gallery backdrop is a 1800-pixel WebP. The lot illustrations are 1320-pixel JPEGs. Use seller-controlled photographs with permission and accurate condition coverage before a real auction.
 
 ## Fonts
 

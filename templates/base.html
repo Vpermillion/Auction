@@ -16,7 +16,7 @@
     <div class="masthead page-width">
       <a class="wordmark" href="{{ url_for('home') }}" aria-label="Auction House home">
         <span class="brand-symbol" aria-hidden="true">A<span>H</span></span>
-        <span>Auction<span class="wordmark-gold">House</span></span>
+        <span>Auction <span class="wordmark-gold">House</span></span>
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="{{ url_for('explore') }}" {% if request.endpoint == 'explore' %}aria-current="page"{% endif %}>{{ t('Explore auctions') }}</a>
@@ -59,7 +59,7 @@
   <main id="main">{% block content %}{% endblock %}</main>
   <footer class="site-footer">
     <div class="page-width footer-inner">
-      <a class="footer-brand" href="{{ url_for('home') }}">Auction<span>House</span></a>
+      <a class="footer-brand" href="{{ url_for('home') }}">Auction <span>House</span></a>
       <nav aria-label="Footer navigation">
         <a href="{{ url_for('explore') }}">{{ t('Explore auctions') }}</a>
         <a href="{{ url_for('home') }}#pilot">{{ t('For sellers') }}</a>

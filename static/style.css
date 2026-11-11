@@ -1,16 +1,16 @@
 :root {
   color-scheme: dark;
-  --paper: #11100e;
-  --surface: #191713;
-  --surface-raised: #211e18;
-  --line: #3b3428;
-  --line-strong: #6b5738;
-  --ink: #f2ede2;
-  --muted: #b6ad9d;
-  --gold: #c5a36c;
-  --gold-light: #dec18a;
-  --action: #a8272e;
-  --action-hover: #bb3038;
+  --paper: #100d0b;
+  --surface: #19140f;
+  --surface-raised: #221a12;
+  --line: #463626;
+  --line-strong: #795e38;
+  --ink: #f3ebdb;
+  --muted: #bfb29f;
+  --gold: #c49d5f;
+  --gold-light: #e7c98e;
+  --action: #a62822;
+  --action-hover: #bb362e;
   --display: "Cormorant Garamond", Georgia, serif;
   --sans: Inter, system-ui, sans-serif;
   --gutter: clamp(18px, 4.4vw, 68px);
@@ -117,7 +117,7 @@ button:disabled { cursor: not-allowed; }
   min-height: 46px;
   padding: 11px 18px;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--action);
   color: #fff5eb;
   font-size: .82rem;
@@ -148,13 +148,13 @@ button:disabled { cursor: not-allowed; }
 }
 .skip:focus { transform: none; }
 
-.site-header { border-bottom: 1px solid var(--line); background: #10100e; }
+.site-header { border-block: 1px solid var(--line); background: #0e0b09; }
 .masthead {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 22px;
-  min-height: 74px;
+  min-height: 76px;
 }
 .wordmark, .footer-brand {
   display: inline-flex;
@@ -173,15 +173,16 @@ button:disabled { cursor: not-allowed; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 35px;
-  height: 35px;
-  padding-right: 3px;
+  width: 39px;
+  height: 39px;
+  padding-right: 2px;
   border: 1px solid var(--line-strong);
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--line);
   color: var(--gold-light);
   font-size: 1.45rem;
   letter-spacing: -.15em;
 }
-.brand-symbol span { transform: translateY(3px); }
+.brand-symbol span { transform: translateY(2px); }
 .wordmark-gold, .footer-brand span { color: var(--gold-light); }
 .main-nav, .header-tools {
   display: flex;
@@ -221,7 +222,7 @@ button:disabled { cursor: not-allowed; }
 .header-link:hover { color: var(--gold-light); }
 .edition-strip {
   border-bottom: 1px solid var(--line);
-  background: #18150f;
+  background: #17110c;
   color: var(--muted);
   font-size: .69rem;
 }
@@ -245,18 +246,35 @@ button:disabled { cursor: not-allowed; }
 .edition-title .status-dot, .auction-strip .status-dot { color: var(--gold); }
 
 .auction-hero {
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 43fr) minmax(0, 57fr);
-  margin-top: 30px;
-  border: 1px solid var(--line);
+  grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+  min-height: clamp(450px, 41vw, 550px);
+  margin-top: 24px;
+  border: 1px solid var(--line-strong);
+  background: #130e0a;
+}
+.auction-hero::before, .auction-hero::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+.auction-hero::before {
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(16 11 8 / 97%) 0%, rgb(16 11 8 / 85%) 28%, rgb(16 11 8 / 32%) 59%, transparent 82%);
+}
+.auction-hero::after {
+  inset: 6px;
+  border: 1px solid rgb(196 157 95 / 30%);
 }
 .hero-copy {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: start;
-  padding: clamp(25px, 4vw, 60px);
-  background: #15130f;
+  padding: clamp(30px, 4.55vw, 69px);
 }
 .hero-copy h1 {
   margin-block: 23px 20px;
@@ -265,38 +283,48 @@ button:disabled { cursor: not-allowed; }
   line-height: .88;
 }
 .hero-copy h1 em { letter-spacing: -.05em; }
-.hero-copy .lede { max-width: 29ch; }
+.hero-copy .lede { max-width: 34ch; }
 .hero-copy .actions { margin-top: 28px; }
-.featured-lot {
-  display: block;
-  position: relative;
-  isolation: isolate;
+.gallery-stage {
+  display: flex;
+  align-items: end;
+  justify-content: end;
   min-width: 0;
-  min-height: clamp(360px, 36.5vw, 510px);
-  overflow: hidden;
-  background: #282018;
+  padding: clamp(19px, 2.3vw, 34px);
 }
+.gallery-interior {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 54%;
+}
+.featured-lot {
+  display: grid;
+  grid-template-columns: clamp(75px, 8.2vw, 116px) minmax(0, 1fr);
+  min-width: 0;
+  width: min(100%, 416px);
+  border: 1px solid var(--line-strong);
+  background: #18110d;
+  box-shadow: 0 8px 22px rgb(0 0 0 / 32%);
+  transition: border-color 160ms ease;
+}
+.featured-lot:hover { border-color: var(--gold-light); }
 .featured-lot img, .card-image img, .detail-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 .featured-lot img {
-  position: absolute;
-  inset: 0;
-  object-position: 53% 50%;
+  min-height: 0;
+  object-position: 59% center;
+  border-right: 1px solid var(--line-strong);
 }
-a.featured-lot img, .card-image img { transition: transform 320ms ease; }
-a.featured-lot:hover img, .card-image:hover img { transform: scale(1.025); }
-.featured-lot::after {
-  position: absolute;
-  inset: 40% 0 0;
-  z-index: 0;
-  content: "";
-  pointer-events: none;
-  background: linear-gradient(transparent, rgb(9 8 6 / 86%));
-}
-.feature-label, .card-image .status {
+.card-image img { transition: transform 300ms ease; }
+.card-image:hover img { transform: scale(1.025); }
+.feature-label {
   position: absolute;
   top: 17px;
   left: 17px;
@@ -304,50 +332,56 @@ a.featured-lot:hover img, .card-image:hover img { transform: scale(1.025); }
   border: 1px solid #7b6748;
   background: #14120eee;
   color: var(--gold-light);
-}
-.feature-label {
   padding: 6px 9px;
   font-size: .63rem;
   font-weight: 600;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
-.feature-label > span { padding-inline: 5px; }
 .feature-caption {
-  position: absolute;
-  inset: auto 24px 20px;
-  z-index: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 12px;
+  display: block;
+  min-width: 0;
+  padding: 13px 16px;
   color: var(--ink);
 }
-.feature-seller {
+.feature-index {
   display: block;
   color: var(--gold-light);
-  font-size: .64rem;
+  font-size: .6rem;
   font-weight: 600;
-  letter-spacing: .15em;
+  letter-spacing: .09em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
+.feature-index > span { margin-inline: 3px; color: var(--gold); }
 .feature-title {
   display: block;
   margin-top: 5px;
   font-family: var(--display);
-  font-size: clamp(1.7rem, 3.25vw, 3.1rem);
+  font-size: clamp(1.5rem, 2.35vw, 2.15rem);
   font-weight: 500;
   letter-spacing: -.035em;
-  line-height: .98;
+  line-height: 1.02;
   overflow-wrap: anywhere;
 }
-.feature-caption > span:first-child { min-width: 0; }
-.feature-value { text-align: right; flex: 0 0 auto; max-width: 43%; }
-.feature-value small, .card-bottom small { display: block; color: var(--muted); font-size: .68rem; }
+.feature-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px;
+  margin-top: 9px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+  color: var(--gold-light);
+}
+.feature-value { display: flex; flex-wrap: wrap; align-items: baseline; gap: 1px 8px; min-width: 0; }
+.feature-value small, .card-bottom small { color: var(--muted); font-size: .68rem; }
+.card-bottom small { display: block; }
 .feature-value strong {
   color: var(--gold-light);
-  font-size: clamp(.85rem, 1.6vw, 1.25rem);
+  font-size: .88rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .auction-strip {
@@ -382,14 +416,31 @@ a.featured-lot:hover img, .card-image:hover img { transform: scale(1.025); }
   min-width: 0;
   border: 1px solid var(--line);
   background: var(--surface);
+  transition: border-color 160ms ease;
 }
+.auction-card:hover, .auction-card:focus-within { border-color: var(--line-strong); }
+.card-index {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  padding: 8px 12px;
+  color: var(--gold);
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.card-index .status { border: 0; padding: 0; }
 .card-image {
   display: block;
   position: relative;
   aspect-ratio: 1.52;
   overflow: hidden;
+  margin-inline: 9px;
   background: #282018;
-  border-bottom: 1px solid var(--line);
+  border: 1px solid var(--line);
 }
 .card-content { display: flex; flex-direction: column; flex: 1; padding: 17px 19px 14px; }
 .card-meta, .card-timing {
@@ -402,7 +453,6 @@ a.featured-lot:hover img, .card-image:hover img { transform: scale(1.025); }
   font-size: .69rem;
 }
 .card-meta a { color: var(--gold-light); overflow-wrap: anywhere; }
-.card-meta > span { text-transform: uppercase; letter-spacing: .08em; }
 .auction-card h3 { margin-block: 10px 19px; }
 .card-bottom {
   display: flex;
@@ -414,7 +464,7 @@ a.featured-lot:hover img, .card-image:hover img { transform: scale(1.025); }
   border-top: 1px solid var(--line);
 }
 .card-bottom > div { min-width: 0; }
-.card-bottom strong { color: var(--ink); font-size: 1.1rem; font-weight: 600; overflow-wrap: anywhere; }
+.card-bottom strong { color: var(--ink); font-size: 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .lot-link {
   display: grid;
   place-items: center;
@@ -441,8 +491,6 @@ a.featured-lot:hover img, .card-image:hover img { transform: scale(1.025); }
   text-transform: uppercase;
 }
 .status.open { border-color: var(--line-strong); color: var(--gold-light); }
-.card-image .status { top: 12px; left: 12px; }
-.card-image .status:not(.open) { color: var(--muted); }
 .empty {
   grid-column: 1 / -1;
   padding: 23px;
@@ -567,12 +615,19 @@ input:disabled { opacity: .65; }
   padding-bottom: 40px;
 }
 .detail-image {
+  --image-mat: clamp(5px, .7vw, 10px);
   position: relative;
   aspect-ratio: 1.32;
-  border: 1px solid var(--line);
-  background: #251e17;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
 }
-.detail-image img { position: absolute; inset: 0; }
+.detail-image img {
+  position: absolute;
+  inset: var(--image-mat);
+  width: calc(100% - 2 * var(--image-mat));
+  height: calc(100% - 2 * var(--image-mat));
+  border: 1px solid var(--line);
+}
 .lot-gallery figcaption { margin-top: 9px; }
 .item-copy { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
 .item-copy h2, .rules h2, .detail-lower h2 { font-size: clamp(2rem, 3vw, 2.65rem); }
@@ -585,9 +640,9 @@ input:disabled { opacity: .65; }
 .bid-column h1 { margin-block: 13px 18px; font-size: clamp(2.7rem, 5.1vw, 4.7rem); }
 .bid-console {
   padding: clamp(17px, 2.4vw, 27px);
-  border: 1px solid var(--line);
-  border-top: 1px solid var(--gold);
+  border: 1px solid var(--line-strong);
   background: var(--surface);
+  box-shadow: inset 0 0 0 4px var(--paper);
 }
 .bid-price { display: flex; flex-direction: column; gap: 3px; margin-bottom: 17px; }
 .bid-price small, .closing span { color: var(--muted); font-size: .74rem; }
@@ -595,6 +650,7 @@ input:disabled { opacity: .65; }
   color: var(--gold-light);
   font-size: clamp(2rem, 4.3vw, 3.25rem);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
   letter-spacing: -.055em;
   line-height: 1.1;
   overflow-wrap: anywhere;
@@ -615,7 +671,7 @@ input:disabled { opacity: .65; }
 .time-remaining strong {
   display: block;
   color: var(--gold-light);
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.4;
   font-variant-numeric: tabular-nums;
@@ -769,14 +825,15 @@ th { color: var(--gold-light); font-weight: 600; }
   gap: 18px;
   padding-block: 29px 33px;
 }
-.footer-brand { gap: 0; font-size: 1.6rem; }
+.footer-brand { gap: .15em; font-size: 1.6rem; }
 .footer-inner nav { display: flex; flex-wrap: wrap; gap: 9px 21px; color: var(--muted); font-size: .79rem; }
 
 @media (max-width: 1010px) {
+  .gallery-interior { object-position: 100% 54%; }
   .hero-copy { padding-inline: clamp(22px, 3.5vw, 39px); }
   .hero-copy h1 { font-size: clamp(3.1rem, 7.45vw, 5.2rem); }
   .hero-copy .actions { gap: 12px 15px; }
-  .feature-caption { inset-inline: 17px; }
+  .feature-caption { padding-inline: 12px; }
   .auction-grid { gap: 14px; }
   .card-content { padding-inline: 13px; }
   .shop-hero { gap: 19px; }
@@ -796,16 +853,22 @@ th { color: var(--gold-light); font-weight: 600; }
   }
   .main-nav a { padding-block: 8px; }
   .header-tools { grid-column: 2; grid-row: 1; gap: 11px; }
-  .auction-hero { grid-template-columns: 1fr; margin-top: 17px; }
-  .hero-copy { padding: 29px 25px 26px; }
+  .auction-hero { grid-template-columns: 1fr; min-height: 0; margin-top: 17px; }
+  .auction-hero::before { display: none; }
+  .hero-copy { padding: 31px 26px 27px; }
   .hero-copy h1 { font-size: clamp(3.45rem, 13.4vw, 6.35rem); margin-block: 15px 14px; }
   .hero-copy .lede { max-width: 37ch; font-size: .91rem; }
   .hero-copy .actions { margin-top: 19px; }
-  .featured-lot { min-height: 0; aspect-ratio: 1.46; border-top: 1px solid var(--line); }
-  .feature-caption { inset: auto 16px 16px; }
-  .feature-title { font-size: clamp(1.6rem, 6vw, 2.6rem); }
+  .gallery-stage {
+    position: relative;
+    isolation: isolate;
+    justify-content: center;
+    min-height: clamp(245px, 52vw, 340px);
+    padding: 17px;
+    border-top: 1px solid var(--line-strong);
+  }
+  .feature-title { font-size: clamp(1.46rem, 4.8vw, 2.05rem); }
   .feature-label { top: 12px; left: 12px; }
-  .feature-value strong { font-size: 1rem; }
   .section { padding-block: 30px 39px; }
   .section-heading { margin-bottom: 16px; }
   .auction-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -829,7 +892,7 @@ th { color: var(--gold-light); font-weight: 600; }
 }
 
 @media (max-width: 460px) {
-  .wordmark { font-size: 1.61rem; gap: 8px; }
+  .wordmark { font-size: 1.46rem; gap: 8px; }
   .brand-symbol { width: 32px; height: 32px; font-size: 1.28rem; }
   .hero-copy { padding-inline: 19px; }
   .hero-copy .button { padding-inline: 12px; gap: 10px; }
@@ -838,9 +901,7 @@ th { color: var(--gold-light); font-weight: 600; }
   .auction-grid { grid-template-columns: 1fr; gap: 17px; }
   .card-content { padding-inline: 17px; }
   .page-intro { padding-block: 31px 19px; }
-  .feature-value strong { font-size: .9rem; }
-  .feature-caption { gap: 8px; }
-  .feature-title { font-size: 1.6rem; }
+  .feature-caption { padding: 10px; }
   .feature-value small { font-size: .63rem; }
   .account-item { grid-template-columns: 76px minmax(0, 1fr); gap: 12px; }
   .account-item img { height: 86px; }
