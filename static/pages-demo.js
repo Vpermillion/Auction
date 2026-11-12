@@ -201,6 +201,7 @@
         setText(feedback, labels.saved + ' · ' + money(bid));
       }
       update();
+      if (storageAvailable) document.dispatchEvent(new Event('auction:bid-recorded'));
     });
   }
 

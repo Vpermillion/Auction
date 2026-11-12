@@ -12,6 +12,7 @@
   </div>
   <div class="gallery-stage">
     <img class="gallery-interior" src="{{ url_for('static', filename='images/auction-gallery.webp') }}" alt="" fetchpriority="high" width="1800" height="693">
+    <span class="gallery-screen" aria-hidden="true"></span>
     {% if featured %}
       <a class="featured-lot" href="{{ url_for('detail', auction_id=featured.id) }}"{% if pages_demo %} data-demo-feature='{{ pages_lot(featured)|tojson }}'{% endif %}>
         <img src="{{ url_for('static', filename='images/catalogue-' + featured.image + '.jpg') }}" alt="" width="1320" height="880">

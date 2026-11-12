@@ -112,7 +112,7 @@ def export(output):
                 destination.write_bytes(response.data)
 
     static = ROOT / "static"
-    assets = [static / "style.css", static / "pages-demo.js", static / "images" / "auction-gallery.webp"]
+    assets = [static / name for name in ("style.css", "motion.css", "motion.js", "pages-demo.js", "images/auction-gallery.webp")]
     assets.extend((static / "fonts").iterdir())
     assets.extend((static / "images").glob("catalogue-*.jpg"))
     for source in assets:

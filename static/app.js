@@ -176,6 +176,7 @@ if (page) {
 
   async function send() {
     if (inFlight || !pending) return;
+    let acceptedBid = false;
     inFlight = true;
     retry.disabled = true;
     submit.disabled = true;
@@ -201,6 +202,7 @@ if (page) {
       document.querySelector('#accept-bid').checked = false;
       const accepted = mongolian ? 'Санал бүртгэгдлээ · ' : 'Bid recorded · ';
       feedback.textContent = response.ok ? accepted + money(result.amount) : result.error;
+      acceptedBid = response.ok;
     } catch (_) {
       setUncertain();
     } finally {
@@ -209,6 +211,7 @@ if (page) {
       retry.disabled = false;
     }
     await refresh();
+    if (acceptedBid) document.dispatchEvent(new Event('auction:bid-recorded'));
   }
 
   if (form) {
