@@ -13,7 +13,7 @@
   <div class="gallery-stage">
     <img class="gallery-interior" src="{{ url_for('static', filename='images/auction-gallery.webp') }}" alt="" fetchpriority="high" width="1800" height="693">
     {% if featured %}
-      <a class="featured-lot" href="{{ url_for('detail', auction_id=featured.id) }}">
+      <a class="featured-lot" href="{{ url_for('detail', auction_id=featured.id) }}"{% if pages_demo %} data-demo-feature='{{ pages_lot(featured)|tojson }}'{% endif %}>
         <img src="{{ url_for('static', filename='images/catalogue-' + featured.image + '.jpg') }}" alt="" width="1320" height="880">
         <span class="feature-caption">
           <span class="feature-index">{{ t('Featured lot') }} {{ '%03d'|format(featured.id) }} <span aria-hidden="true">/</span> {{ featured.shop_name }}</span>
@@ -56,6 +56,13 @@
       <div><dt>Fulfill</dt><dd>Contact the winner and record payment and pickup.</dd></div>
     </dl>
   </div>
+  {% if pages_demo %}
+  <div class="panel pilot-form">
+    <h3>{{ t('View a demo shop') }}</h3>
+    <p class="lede">{{ t('See how lots, seller terms and pickup details appear on a shop page.') }}</p>
+    <a class="inline-link" href="{{ url_for('shop', slug='altan-studio') }}">Altan Studio <span class="arrow" aria-hidden="true"></span></a>
+  </div>
+  {% else %}
   <form class="panel pilot-form" method="post" action="{{ url_for('inquiry') }}">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <h3>{{ t('Request a pilot') }}</h3>
@@ -64,5 +71,6 @@
     <label>Shop and proposed auction<textarea name="message" required minlength="10" maxlength="2000" rows="4" placeholder="What would you like to auction?"></textarea></label>
     <button class="button">{{ t('Send inquiry') }} <span class="arrow" aria-hidden="true"></span></button>
   </form>
+  {% endif %}
 </section>
 {% endblock %}

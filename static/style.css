@@ -827,6 +827,9 @@ th { color: var(--gold-light); font-weight: 600; }
 }
 .footer-brand { gap: .15em; font-size: 1.6rem; }
 .footer-inner nav { display: flex; flex-wrap: wrap; gap: 9px 21px; color: var(--muted); font-size: .79rem; }
+.demo-reset { border: 0; background: none; color: var(--gold-light); font: inherit; padding: 0; }
+.demo-reset:hover { color: var(--ink); }
+.demo-bid-button { margin-top: 12px; }
 
 @media (max-width: 1010px) {
   .gallery-interior { object-position: 100% 54%; }

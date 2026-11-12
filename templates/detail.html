@@ -9,7 +9,7 @@
   <span aria-current="page">{{ t('Lot') }} {{ '%03d'|format(a.id) }}</span>
 </nav>
 {% set minimum = a.price + a.increment if a.price else a.start_price %}
-<section class="detail-grid page-width" data-auction="{{ a.id }}" data-bidder="{{ user.alias if user else 'anonymous' }}" data-server-time="{{ timestamp }}" data-close="{{ a.closes_at }}" data-state="{{ a.state }}">
+<section class="detail-grid page-width"{% if pages_demo %} data-demo-detail='{{ pages_lot(a)|tojson }}'{% else %} data-auction="{{ a.id }}" data-bidder="{{ user.alias if user else 'anonymous' }}" data-server-time="{{ timestamp }}" data-close="{{ a.closes_at }}" data-state="{{ a.state }}"{% endif %}>
   <div class="lot-visual">
     <figure class="lot-gallery">
       <div class="detail-image">
@@ -47,7 +47,23 @@
         <div><span id="closing-label">{{ t('Closes') if a.state == 'open' else t('Closed') }}</span><time id="closing-time" datetime="{{ a.closes_at|isotime }}">{{ a.closes_at|localtime }}</time></div>
         <div class="time-remaining"><span>{{ t('Time left') }}</span><strong id="countdown" aria-live="off">{{ t('Waiting for close') if a.state == 'open' else t(a.state|capitalize) }}</strong></div>
       </div>
-      {% if a.state == 'open' %}
+      {% if pages_demo %}
+        {% if a.state == 'open' %}
+          <form class="bid-form" id="demo-bid-form">
+            <label for="demo-amount">{{ t('Bid amount (MNT)') }}</label>
+            <div class="amount-field">
+              <input id="demo-amount" name="amount" type="number" inputmode="numeric" step="1" min="{{ minimum }}" max="1000000000000" value="{{ minimum }}" required aria-describedby="bid-minimum">
+              <span aria-hidden="true">₮</span>
+            </div>
+            <p class="caption" id="bid-minimum">{{ t('Minimum bid') }} <span id="minimum-value">{{ minimum|mnt }}</span></p>
+            <button class="button wide demo-bid-button" type="submit" disabled>{{ t('Place demo bid') }} <span class="arrow" aria-hidden="true"></span></button>
+          </form>
+          <p class="caption sync-status" id="demo-bid-feedback" role="status">{{ t('Demo bids stay in this browser.') }}</p>
+          <noscript><p class="notice">{{ t('Enable JavaScript to try a demo bid.') }}</p></noscript>
+        {% else %}
+          <p class="caption">{{ t('Sample result from a completed demo auction.') }}</p>
+        {% endif %}
+      {% elif a.state == 'open' %}
         {% if user and user.role == 'buyer' %}
           <form class="bid-form" action="{{ url_for('bid_form', auction_id=a.id) }}" method="post" id="bid-form">
             <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -85,15 +101,20 @@
         <div><dt>{{ t('Starting price') }}</dt><dd>{{ a.start_price|mnt }}</dd></div>
         <div><dt>{{ t('Minimum increment') }}</dt><dd>{{ a.increment|mnt }}</dd></div>
         <div><dt>Soft close</dt><dd>{{ a.soft_close ~ ' s' if a.soft_close else 'Off' }}</dd></div>
-        <div><dt>{{ t('Payment deadline') }}</dt><dd>{{ a.payment_hours }} hours after close</dd></div>
+        {% if not pages_demo %}<div><dt>{{ t('Payment deadline') }}</dt><dd>{{ a.payment_hours }} hours after close</dd></div>{% endif %}
       </dl>
-      {% if lang == 'mn' %}
+      {% if pages_demo %}
+        <p>{{ t('Try the starting price, then bid at least one increment higher. Demo prices and results are stored in this browser.') }}</p>
+        {% if a.soft_close %}<p>{{ t('A demo bid near the deadline extends the countdown.') }}</p>{% endif %}
+      {% elif lang == 'mn' %}
         <p>Эхлэх үнэ нь борлуулагчийн зөвшөөрөх доод үнэ. {% if a.soft_close %}Сүүлийн {{ a.soft_close }} секундэд хүчинтэй санал ирвэл тухайн саналаас хойш {{ a.soft_close }} секунд хүртэл хугацаа сунгагдана. {% endif %}Хугацаа дуусахад хамгийн өндөр хүчинтэй санал ялагч болно.</p>
       {% else %}
         <p>The starting price is the minimum sale price. {% if a.soft_close %}A valid bid in the last {{ a.soft_close }} seconds moves the deadline to {{ a.soft_close }} seconds after that bid. {% endif %}The highest accepted bid before the server deadline wins.</p>
       {% endif %}
-      <p>{{ a.fees }}</p>
-      <p>Accepted bids stay in the record. Any cancellation requires a recorded reason.</p>
+      {% if not pages_demo %}
+        <p>{{ a.fees }}</p>
+        <p>Accepted bids stay in the record. Any cancellation requires a recorded reason.</p>
+      {% endif %}
     </section>
   </div>
 </section>
@@ -102,7 +123,7 @@
   <div>
     <div class="section-heading">
       <h2>{{ t('Bid history') }}</h2>
-      <span class="caption">Public aliases</span>
+      <span class="caption">{{ t('This browser' if pages_demo else 'Public aliases') }}</span>
     </div>
     <div id="bid-history" aria-live="polite">
       {% for bid in bids %}
@@ -117,7 +138,7 @@
       <summary>{{ t('Seller policies') }}</summary>
       <p>{{ a.seller_terms }}</p>
     </details>
-    <details>
+    {% if not pages_demo %}<details>
       <summary>{{ t('Report a concern') }}</summary>
       <p>Contact {{ shop.contact }} about condition or fulfillment. Send concerns about bidding or misleading claims to the operator.</p>
       {% if user %}
@@ -129,8 +150,8 @@
       {% else %}
         <a class="inline-link" href="{{ url_for('login', lot=a.id) }}">Sign in to submit a report <span class="arrow" aria-hidden="true"></span></a>
       {% endif %}
-    </details>
-    <a class="inline-link caption" href="{{ url_for('policies') }}">{{ t('Draft terms & privacy') }} <span class="arrow" aria-hidden="true"></span></a>
+    </details>{% endif %}
+    <a class="inline-link caption" href="{{ url_for('policies') }}">{{ t('Demo and privacy' if pages_demo else 'Draft terms & privacy') }} <span class="arrow" aria-hidden="true"></span></a>
   </div>
 </section>
 {% endblock %}

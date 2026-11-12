@@ -10,10 +10,10 @@
   <div class="catalogue-toolbar">
     <nav class="catalogue-filters" aria-label="Auction status">
       {% for key, label in [('all', 'All lots'), ('open', 'Open'), ('closed', 'Closed')] %}
-        <a href="{{ url_for('explore', status=key if key != 'all' else None) }}" {% if scope == key %}aria-current="page"{% endif %}>{{ t(label) }}</a>
+        <a href="{{ url_for('explore', status=key if key != 'all' else None) }}" {% if scope == key %}aria-current="page"{% endif %}{% if pages_demo %} data-demo-filter="{{ key }}"{% endif %}>{{ t(label) }}</a>
       {% endfor %}
     </nav>
-    <span class="caption">{{ auctions|length }} {{ 'бараа' if lang == 'mn' else 'lot' if auctions|length == 1 else 'lots' }} · MNT</span>
+    <span class="caption"{% if pages_demo %} data-demo-count{% endif %}>{{ auctions|length }} {{ 'бараа' if lang == 'mn' else 'lot' if auctions|length == 1 else 'lots' }} · MNT</span>
   </div>
   {% include '_cards.html' %}
 </section>

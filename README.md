@@ -1,6 +1,20 @@
 # Auction House — a working SaaS pilot
 
-A phone-friendly, server-backed auction pilot for established shops in Mongolia. **Synthetic demo only; no public deployment or live payment integration.** Built from an empty repository on `codex/auction-pilot` with Flask, server-rendered Jinja and SQLite to minimize cost and operational complexity.
+A phone-friendly auction pilot for established shops in Mongolia. The Flask app uses SQLite and synthetic demo data. The GitHub Pages build uses the same catalogue and stores test bids in the visitor's browser.
+
+## GitHub Pages test build
+
+Build from the repository root after installing `requirements.txt`.
+
+```sh
+python -m auction.pages --output dist/pages
+```
+
+Use a new or empty output directory. The export renders the English and Mongolian catalogue, shop pages, and lot pages from a fresh synthetic database. Open a lot and place a demo bid to see the price, next minimum, and history update. **Reset demo bids** in the footer starts a fresh browser session for the demo.
+
+Publish the exported files at the root of `gh-pages`, including `.nojekyll`. In the repository's **Settings → Pages**, select **Deploy from a branch**, then **gh-pages** and **/ (root)**. [GitHub Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+
+The Pages demo supports browsing and simulated bids on one browser. Shared bidding, account access, seller operations, and reports run through the Flask app below.
 
 ## Run locally (Python 3.11+)
 
