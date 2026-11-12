@@ -1,0 +1,76 @@
+.gallery-screen { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root { --gallery-ease: cubic-bezier(.22, 1, .36, 1); }
+
+  .auction-hero { overflow: clip; }
+
+  .gallery-ready .gallery-interior {
+    animation: gallery-focus 1450ms var(--gallery-ease) both;
+    transform-origin: 75% 50%;
+    translate: var(--gallery-x, 0px) var(--gallery-y, 0px);
+    transition: translate 650ms var(--gallery-ease);
+  }
+
+  .gallery-ready .gallery-screen {
+    display: block;
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 0 43%;
+    border-inline-end: 1px solid var(--gold);
+    background: repeating-linear-gradient(90deg, #140e09 0 23px, #332316 24px 26px);
+    pointer-events: none;
+    transform-origin: left center;
+    animation: screen-open 1120ms var(--gallery-ease) both;
+  }
+
+  .gallery-ready::after { animation: frame-reveal 1150ms var(--gallery-ease) both; }
+  .hero-copy > *, .featured-lot, .detail-image, .bid-column {
+    animation: arrive 660ms var(--gallery-ease) both;
+  }
+  .hero-copy h1 { animation-delay: 80ms; }
+  .hero-copy .lede { animation-delay: 170ms; }
+  .hero-copy .actions { animation-delay: 245ms; }
+  .featured-lot { animation-delay: 420ms; }
+  .bid-column { animation-delay: 100ms; }
+
+  .motion-reveal {
+    transition: opacity 570ms var(--gallery-ease), transform 570ms var(--gallery-ease), border-color 160ms ease;
+  }
+  .motion-pending { opacity: .4; transform: translateY(18px); }
+  .motion-reveal:focus-within { opacity: 1; transform: none; }
+  .auction-card.motion-reveal:nth-child(3n + 2) { transition-delay: 65ms; }
+  .auction-card.motion-reveal:nth-child(3n) { transition-delay: 130ms; }
+
+  .button .arrow, .inline-link .arrow, .lot-link .arrow, .feature-meta .arrow {
+    transition: transform 230ms var(--gallery-ease);
+  }
+  .button:is(:hover, :focus-visible) .arrow, .inline-link:is(:hover, :focus-visible) .arrow,
+  .lot-link:is(:hover, :focus-visible) .arrow, .featured-lot:is(:hover, :focus-visible) .arrow {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 760px) {
+    .gallery-stage { overflow: hidden; }
+    .gallery-ready .gallery-screen { inset-inline-start: 0; }
+    .auction-card.motion-reveal:nth-child(n) { transition-delay: 0ms; }
+  }
+
+  @keyframes gallery-focus {
+    from { opacity: .45; transform: scale(1.095); }
+    to { opacity: 1; transform: scale(1.034); }
+  }
+  @keyframes screen-open {
+    0% { transform: scaleX(1); opacity: .94; }
+    75% { opacity: .72; }
+    100% { transform: scaleX(0); opacity: 0; }
+  }
+  @keyframes frame-reveal {
+    from { clip-path: inset(0 100% 0 0); opacity: .35; }
+    to { clip-path: inset(0); opacity: 1; }
+  }
+  @keyframes arrive {
+    from { opacity: .28; transform: translateY(13px); }
+    to { opacity: 1; transform: none; }
+  }
+}

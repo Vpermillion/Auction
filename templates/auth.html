@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ t('Create account' if registering else 'Sign in') }} · Auction House{% endblock %}
+{% block content %}
+<section class="auth-layout page-width">
+  <div class="auth-copy">
+    <p class="eyebrow ruled-label">Auction House</p>
+    <h1>{{ t('Create account' if registering else 'Sign in') }}</h1>
+    <p class="lede">Place bids and see your auction results.</p>
+    <p class="caption">Public bid history uses an alias. The seller receives your email if you win.</p>
+    <a class="inline-link" href="{{ url_for('policies') }}">{{ t('Draft terms & privacy') }} <span class="arrow" aria-hidden="true"></span></a>
+  </div>
+  <form class="panel auth-form" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>{{ t('Email') }}<input type="email" name="email" autocomplete="email" required maxlength="254"></label>
+    <label>{{ t('Password') }}<input type="password" name="password" autocomplete="{{ 'new-password' if registering else 'current-password' }}" required minlength="{{ 12 if registering else 1 }}" maxlength="256"></label>
+    {% if registering %}
+      <p class="caption">Use sample contact details and at least 12 characters.</p>
+      <label class="checkbox"><input type="checkbox" name="accept" value="yes" required><span>I accept the <a href="{{ url_for('policies') }}">draft demo terms and privacy notice</a>.</span></label>
+    {% endif %}
+    <button class="button wide">{{ t('Create account' if registering else 'Sign in') }} <span class="arrow" aria-hidden="true"></span></button>
+    <p class="auth-switch"><a class="inline-link" href="{{ url_for('login' if registering else 'register', lot=lot) }}">{{ t('Sign in' if registering else 'Create account') }} <span class="arrow" aria-hidden="true"></span></a></p>
+    {% if demo %}
+      <details class="demo-accounts">
+        <summary>Local demo accounts</summary>
+        <p>Password <code>Pilot-demo-2026!</code></p>
+        <dl>
+          <div><dt>Buyer</dt><dd><code>buyer@example.test</code></dd></div>
+          <div><dt>Seller</dt><dd><code>seller@example.test</code></dd></div>
+          <div><dt>Operator</dt><dd><code>operator@example.test</code></dd></div>
+        </dl>
+      </details>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}
